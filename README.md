@@ -1,9 +1,5 @@
 # Configuring-On-premises-Active-Directory-within-Azure-VMs
 
-Configure Active Directory
-
-Active Directory stores data objects on your local network environment.
-
 ![image](https://github.com/Christopherdek/configure-ad/assets/148359456/aef2518e-ee4c-44a0-8f3b-7c2d3d1b48be)
 
 
