@@ -1,113 +1,100 @@
-# Configuring-On-premises-Active-Directory-within-Azure-VMs
+# Configuring On-premises Active Directory within Azure VMs
 
-![image](https://github.com/Christopherdek/configure-ad/assets/148359456/aef2518e-ee4c-44a0-8f3b-7c2d3d1b48be)
+![Azure VMs](https://github.com/Christopherdek/configure-ad/assets/148359456/aef2518e-ee4c-44a0-8f3b-7c2d3d1b48be)
 
+Active Directory serves as a centralized repository, enabling the efficient management and lookup of network devices.
 
-The structure of the data makes it possible to find the details of resources connected to the network from one location. Active Directory acts like a phonebook for your network so you can look up and manage devices easily.
+![Active Directory](https://github.com/Christopherdek/configure-ad/assets/148359456/25bb5ba6-c107-41fd-b1a4-d7875b1b18ee)
 
-
-![image](https://github.com/Christopherdek/configure-ad/assets/148359456/25bb5ba6-c107-41fd-b1a4-d7875b1b18ee)
-
-
-<p align="center">
-
-
-<h2>Environments and Technologies Used</h2>
+## Environments and Technologies Used
 
 - Microsoft Azure (Virtual Machines/Compute)
 - Remote Desktop
 - Active Directory Domain Services
 - PowerShell
 
-<h2>Operating Systems Used </h2>
+## Operating Systems Used
 
 - Windows Server 2022
 - Windows 10 (21H2)
 
-<h2>High-Level Deployment and Configuration Steps</h2>
+## High-Level Deployment and Configuration Steps
 
-1. Domain Controller VM (Windows Server 2022) named “DC-1”
+1. **Domain Controller VM (Windows Server 2022):** Named "DC-1"
 
-2. Domain Controller’s NIC Private IP address to be static
+2. **Domain Controller’s NIC Private IP address:** Set to static
 
-3. ICMPv4 (ping) was allowed on the Domain Controller
+3. **ICMPv4 (ping):** Allowed on the Domain Controller
 
-4. Create an Admin and Normal User Account in Active Directory
+4. **Create Admin and Normal User Account in Active Directory**
 
-5. Join Client to domain
+5. **Join Client to domain**
 
-6. Attempt to login Client-1 with one of the users
+6. **Attempt to login Client-1 with one of the users**
 
+## Deployment and Configuration Steps
 
-<h2>Deployment and Configuration Steps</h2>
+Before beginning, create a Resource group to store the Virtual Machines you create: Domain Controller (DC-1) and Virtual Machine (Client-1). The Domain Controller VM will run the Windows Server 2022 Datacenter-x64 Gen2 image.
 
-Before beginning, create a Resource group so that the Virtual Machines you create can be stored. Your VMs that will be created are for the Domain Controller(DC-1) and Virtual Machine(Client-1). The Domain Controller VM will be running Image: Windows Server 2022 Datacenter-x64 Gen2.
+![DC-1 VM](https://github.com/Christopherdek/configure-ad/assets/148359456/2871a342-3530-44d1-ab20-dd77f05b3d9c)
 
-![image](https://github.com/Christopherdek/configure-ad/assets/148359456/2871a342-3530-44d1-ab20-dd77f05b3d9c)
+![DC-1 Firewall Settings](https://github.com/Christopherdek/configure-ad/assets/148359456/e80bd273-c22d-4da9-9d5a-c47299094811)
 
+Create a VM for the Client (Windows 10) named "Client-1" in the same Resource Group and Vnet as DC-1.
 
-![image](https://github.com/Christopherdek/configure-ad/assets/148359456/e80bd273-c22d-4da9-9d5a-c47299094811)
+![Client-1 VM](https://github.com/Christopherdek/configure-ad/assets/148359456/e8f6696a-7a14-44e8-be98-54c29675160e)
 
-For the next create a VM for the Client(Windows 10) name "Client-1" with the same Resource Group and same Vnet. The RG and Vnet must match DC-1
+![Client-1 Firewall Settings](https://github.com/Christopherdek/configure-ad/assets/148359456/bd47a3d3-7d17-45f4-b8c7-dae8693a329d)
 
-![image](https://github.com/Christopherdek/configure-ad/assets/148359456/e8f6696a-7a14-44e8-be98-54c29675160e)
+Once both VMs are created, set DC-1's Private IP address to static.
 
+![Set DC-1 IP](https://github.com/Christopherdek/configure-ad/assets/148359456/9a452faa-e609-43ec-aa0a-12ef4df0a8ca)
 
-![image](https://github.com/Christopherdek/configure-ad/assets/148359456/bd47a3d3-7d17-45f4-b8c7-dae8693a329d)
+Check the connection between the client and domain controller by logging in with your username and PW to Client-1 with Remote Desktop Connection(RDP) and ping the DC-1 Private IP address using "-t" (Perpetual ping). The ICMPv4 (ping) was showing it was allowing on Domain Controller's (DC-1) Firewall in Windows Firewall (Core Networking Diagnostics). Then log back into Client-1 to see if the ping is successful.
 
+![Ping Test](https://github.com/Christopherdek/configure-ad/assets/148359456/13bc4e71-4499-4e36-833e-f06dabe061ec)
 
-After both VMs are done creating go to DC-1, Private IP address, and set to static. This will allow the IP to stay the same.
+In this example, the ICMP rule has been allowed on the Windows firewall for inbound traffic.
 
-![image](https://github.com/Christopherdek/configure-ad/assets/148359456/9a452faa-e609-43ec-aa0a-12ef4df0a8ca)
+![Firewall Rule](https://github.com/Christopherdek/configure-ad/assets/148359456/ed1cfa6c-92a2-4a2f-9d1d-be192c63741a)
 
-To check for a connection between the client and domain controller by logging in with your username and PW to Client-1 with Remote Desktop Connection(RDP) and ping the DC-1 Private IP address using "-t"(Perpetual ping). The ICMPv4 (ping) was showing it was allowing on Domain Controller's(DC-1) Firewall in Windows Firewall (Core Networking Diagnostics). Then log back into Client-1 to see if the ping is successful.
+Back in DC-1, go and select add roles and features to enable "Active Directory Domain Services". This promotes the Domain Controller (DC) a new forest as mydomain.com setup. Your Remote Desktop will restart, and then you can log back into DC-1 as user: mydomain.com/username*.
 
-![image](https://github.com/Christopherdek/configure-ad/assets/148359456/13bc4e71-4499-4e36-833e-f06dabe061ec)
+![Add Roles](https://github.com/Christopherdek/configure-ad/assets/148359456/4cfa5d72-e505-460f-912a-a507251914e0)
 
+Next, create and configure the Organizational units for the admins and employees in Active Directory (AD) while in DC-1. So in Active Directory Users and Computers, right-click mydomain.com tab --&gt; New --&gt; Organizational Unit. Name it _Admin and repeat and make _EMPLOYEES.
 
-Here in this example that shows that the ICMP rule has been allowed on the Windows firewall for inbound traffic:
+![Organizational Units](https://github.com/Christopherdek/configure-ad/assets/148359456/3b513d26-2107-4877-8ea3-9a00ad2fa77e)
 
-![image](https://github.com/Christopherdek/configure-ad/assets/148359456/ed1cfa6c-92a2-4a2f-9d1d-be192c63741a)
+Right-click on _ADMIN and create a new employee, use the same password with "user_admin." Once the admin is created, add "user_admin" to the "domain admins" security group.
 
-Back in DC-1, go and select add roles and features to enable the "Active Directory Domain Services". This promotes the Domain Controller(DC) a new forest as mydomain.com setup. Your Remote Desktop will restart and then you can log back into DC-1 as 
-user: mydomain.com/username*
+![Create Employee](https://github.com/Christopherdek/configure-ad/assets/148359456/2af14024-18ef-42c0-813b-a893efad671c)
 
-![image](https://github.com/Christopherdek/configure-ad/assets/148359456/4cfa5d72-e505-460f-912a-a507251914e0)
+Log out and (mydomain.com\user) reconnect to dc-1 with your "mydomain.com\user_admin. My example mydomain.com\ayrin_admin.
 
-Next, we can create and configure the Organizational units for the admins and employees in Active Directory(AD) while in DC-1. So in Active Directory Users and computers, right-click mydomain.com tab--->New---->Organizational Unit. Name it _Admin and repeat
-and make _EMPLOYEES. 
+![Reconnect to DC-1](https://github.com/Christopherdek/configure-ad/assets/148359456/361fed99-8d02-4cb9-8d8d-9c49e50bf444)
 
-![image](https://github.com/Christopherdek/configure-ad/assets/148359456/3b513d26-2107-4877-8ea3-9a00ad2fa77e)
+The next step is to go into VM Client-1 portal in Azure. We are going to join Client-1 to the domain(mydomain.com) We have to change the DNS on Client-1 Private IP address the same as the Domain. First, settings --&gt; Network --&gt; Network Interface the "NIC" click on DNS server and change the Private IP address to the Domain. Select "custom," enter the IP address, and click save.
 
-Right-click on _ADMIN and create a new employee, use the same password with "user_admin" Once the admin created, add "user_admin" to the "domain admins" security group".
+![Change DNS](https://github.com/Christopherdek/configure-ad/assets/148359456/2f0c74ef-9f2f-4c34-8306-ae53a6f131ad)
 
-![image](https://github.com/Christopherdek/configure-ad/assets/148359456/2af14024-18ef-42c0-813b-a893efad671c)
+Now with the DNS servers successfully changed to the private IP address of DC-1, we can add the client-1 to the domain without any issue. You will get a message about the client being successfully added to the domain. To log in to the client is by "System --&gt; Rename This PC --&gt; enter domain name --&gt; select ok --&gt; select apply. Then restart the systems.
 
-Log out and (mydomain.com\user) reconnect to dc-1 with your "mydomain.com\user_admin. My example mydomain.com\ayrin_admin
+![image](https://github.com/Christopherdek/configure-ad/assets/148359456/ea6f3327-6a9f-4260-a921-9c1d09744861)
 
-![Screenshot 2023-08-11 202559](https://github.com/Leibwatcher/Configuring-On-premises-Active-Directory-within-Azure-VMs/assets/137578446/96fe6091-04b6-41a0-85ed-6d1dcc773155)
+A tab will show 'welcome to mydomain.com'
 
-The next step is to go into VM Client-1 portal in Azure. We are going to join Client-1 to the domain(mydomain.com) We have to change the DNS on Client-1 Private IP address the same as the Domain. First, settings--->Network----> Network Interface the "NIC" click on DNS server and change the Private IP address to the Domain. Select "custom" enter the the IP address and click save.
+![image](https://github.com/Christopherdek/configure-ad/assets/148359456/cf29f30c-b895-45da-8209-8116d04a54fc)
 
-
-![Screenshot 2023-08-11 205050](https://github.com/Leibwatcher/Configuring-On-premises-Active-Directory-within-Azure-VMs/assets/137578446/da5c542f-f47b-4b3e-b3d7-37c142aeb654)
-
-Now with the DNS servers successfully change to the private IP address of DC-1, we can add the client-1 to the domain without any issue. You will get a message about the client being successfully added to the domain. To login to the client is by "System--->Rename This PC---> enter domain name--->select ok----> select apply. Then restart the systems.
-
-![Screenshot 2023-08-12 005937](https://github.com/Leibwatcher/Configuring-On-premises-Active-Directory-within-Azure-VMs/assets/137578446/7e824df6-40e8-4956-a957-2fb59a634394)
-
-![Screenshot 2023-08-12 010137](https://github.com/Leibwatcher/Configuring-On-premises-Active-Directory-within-Azure-VMs/assets/137578446/3e6b2174-85a4-4839-a288-5d6cc46abed0)
 
 With the Client-1 connected to the domain, we now can create the clients and load them into "_employment OU" in the domain controller(DC-1). We'll need "Powershell_ISE" as the administrator. Click on the file and copy and paste into the new file(White area) the pre-configured script. While the script is running, Employees will be made, Randomly.
 
-![Screenshot 2023-08-30 162829](https://github.com/Leibwatcher/Configuring-On-premises-Active-Directory-within-Azure-VMs/assets/137578446/d5dd9532-2cfb-42c5-8800-596bd927ab63)
+![image](https://github.com/Christopherdek/configure-ad/assets/148359456/cd71fbc9-245a-42dd-98e6-ccf9cb6078c9)
 
 The randomly generated employees are reflected in the Active Directory on the Domain Controller.
 
-![Capture](https://github.com/Leibwatcher/Configuring-On-premises-Active-Directory-within-Azure-VMs/assets/137578446/3fb49df4-cfcc-4b75-9a2e-61e8bf4bb850)
+![image](https://github.com/Christopherdek/configure-ad/assets/148359456/09c28289-4df4-42d3-aecc-8fff84f04d92)
 
 With a random user, you can now log into that user's account.
 
-![Screenshot 2023-08-12 012159](https://github.com/Leibwatcher/Configuring-On-premises-Active-Directory-within-Azure-VMs/assets/137578446/6a0e46d5-828c-4821-87f4-379b50c9cd9a)
-
-
+![image](https://github.com/Christopherdek/configure-ad/assets/148359456/6c90d286-0108-47a4-ac0d-5f68832f7a53)
